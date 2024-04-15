@@ -17,7 +17,7 @@
 
     <div class="container mt-5">
         <h1>表單</h1>
-        <form id="googleForm">
+        <form id="DocFrom">
             <div class="mb-3">
                 <label for="selectOption" class="form-label">請選擇需要的服務項目</label>
                 <select class="form-select" id="selectOption" name="selectOption">
@@ -85,7 +85,7 @@
                 $('button[type="submit"]').text('送出');
             });
 
-            $('#googleForm').submit(function(e){
+            $('#DocFrom').submit(function(e){
                 e.preventDefault();
                 var formData = $(this).serializeArray();
                 var jsonData = {};
