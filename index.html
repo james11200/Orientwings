@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>表單</title>
+    <!-- 引入Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-3">
+        <div class="btn-group" role="group" aria-label="Language Selector">
+            <button type="button" class="btn btn-primary" id="btnEnglish">English</button>
+            <button type="button" class="btn btn-primary" id="btnChinese">中文</button>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <h1>表單</h1>
+        <form id="googleForm">
+            <div class="mb-3">
+                <label for="selectOption" class="form-label">請選擇需要的服務項目</label>
+                <select class="form-select" id="selectOption" name="selectOption">
+                    <option value="option1">品牌代理</option>
+                    <option value="option2">經營銷售</option>
+                    <option value="option3">尋找亞洲供應商</option>
+                    <option value="option3">國際運輸</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="inputData" class="form-label">需求</label>
+                <input type="text" class="form-control" id="inputData" name="inputData" required>
+            </div>
+            <div class="mb-3">
+                <label for="inputData" class="form-label">規格</label>
+                <input type="text" class="form-control" id="inputData" name="inputData" required>
+            </div>
+            <div class="mb-3">
+                <label for="inputData" class="form-label">預算</label>
+                <input type="text" class="form-control" id="inputData" name="inputData" required>
+            </div>                        
+            <button type="submit" class="btn btn-primary">送出</button>
+        </form>
+    </div>
+
+    <!-- 引入Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 引入jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            // Default language is Chinese
+            $('#btnEnglish').show();
+            $('#btnChinese').hide();
+
+            $('#btnEnglish').click(function(){
+                // Show English content
+                $('#btnEnglish').hide();
+                $('#btnChinese').show();
+                $('h1').text('Form');
+                $('label[for="selectOption"]').text('Please select the desired service');
+                $('option[value="option1"]').text('Brand Agency');
+                $('option[value="option2"]').text('Business Sales');
+                $('option[value="option3"]').text('Find Asian Suppliers');
+                $('option[value="option4"]').text('International Shipping');
+                $('label[for="inputData"]').eq(0).text('Requirement');
+                $('label[for="inputData"]').eq(1).text('Specification');
+                $('label[for="inputData"]').eq(2).text('Budget');
+                $('button[type="submit"]').text('Submit');
+            });
+
+            $('#btnChinese').click(function(){
+                // Show Chinese content
+                $('#btnEnglish').show();
+                $('#btnChinese').hide();
+                $('h1').text('表單');
+                $('label[for="selectOption"]').text('請選擇需要的服務項目');
+                $('option[value="option1"]').text('品牌代理');
+                $('option[value="option2"]').text('經營銷售');
+                $('option[value="option3"]').text('尋找亞洲供應商');
+                $('option[value="option4"]').text('國際運輸');
+                $('label[for="inputData"]').eq(0).text('需求');
+                $('label[for="inputData"]').eq(1).text('規格');
+                $('label[for="inputData"]').eq(2).text('預算');
+                $('button[type="submit"]').text('送出');
+            });
+
+            $('#googleForm').submit(function(e){
+                e.preventDefault();
+                var formData = $(this).serializeArray();
+                var jsonData = {};
+                $(formData).each(function(index, obj){
+                    jsonData[obj.name] = obj.value;
+                });
+                var jsonString = JSON.stringify(jsonData);
+                console.log(jsonString); // You can replace this with your actual handling code
+            });
+        });
+    </script>
+</body>
+</html>
