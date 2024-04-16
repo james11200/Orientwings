@@ -6,18 +6,34 @@
     <title>表單</title>
     <!-- 引入Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #EEECE3;
+        }
+                /* Custom button color */
+                .custom-btn {
+                    background-color: white; /* Bootstrap's primary color */
+                    border-color: white; /* Match button border color */
+                }
+        
+                /* Custom button color when hovered */
+                .custom-btn:hover {
+                    background-color: #138496; /* Darker shade of primary color */
+                    border-color: #138496; /* Match button border color on hover */
+                }
+    </style>
 </head>
 <body>
-    <div class="container mt-3">
-        <div class="btn-group" role="group" aria-label="Language Selector">
-            <button type="button" class="btn btn-primary" id="btnEnglish">English</button>
-            <button type="button" class="btn btn-primary" id="btnChinese">中文</button>
-        </div>
-    </div>
-
     <div class="container mt-5">
+    <!-- <div class="container mt-5"> -->
+        <!-- <div class="btn-group" role="group" aria-label="Language Selector"> -->
+            <button type="button" class="btn custom-btn" id="btnEnglish">English</button>
+            <button type="button" class="btn custom-btn" id="btnChinese">中文</button>
+        <!-- </div> -->
+    <!-- </div> -->
+        <p> </p>
         <h1>表單</h1>
-        <form id="DocFrom">
+        <form id="DocForm" novalidate>
             <div class="mb-3">
                 <label for="selectOption" class="form-label">請選擇需要的服務項目</label>
                 <select class="form-select" id="selectOption" name="selectOption">
@@ -28,18 +44,19 @@
                 </select>
             </div>
             <div class="mb-3">
-                <label for="inputData" class="form-label" novalidate>需求</label>
-                <input type="text" class="form-control" id="inputData" name="inputData" required>
+                <label for="inputRequirement" class="form-label">需求</label>
+                <input type="text" class="form-control" id="inputRequirement" name="inputRequirement" required>
             </div>
             <div class="mb-3">
-                <label for="inputData" class="form-label" novalidate>規格</label>
-                <input type="text" class="form-control" id="inputData" name="inputData" required>
+                <label for="inputSpec" class="form-label">規格</label>
+                <input type="text" class="form-control" id="inputSpec" name="inputSpec" required>
             </div>
             <div class="mb-3">
-                <label for="inputData" class="form-label">預算</label>
-                <input type="text" class="form-control" id="inputData" name="inputData" required>
-            </div>                        
-            <button type="submit" class="btn btn-primary">送出</button>
+                <label for="inputBudget" class="form-label">預算</label>
+                <input type="text" class="form-control" id="inputBudget" name="inputBudget">
+                <div id="budgetError" class="invalid-feedback">Please enter a budget.</div>
+            </div>                   
+            <button type="submit" class="btn custom-btn">送出</button>
         </form>
     </div>
 
@@ -63,9 +80,9 @@
                 $('option[value="option2"]').text('Business Sales');
                 $('option[value="option3"]').text('Find Asian Suppliers');
                 $('option[value="option4"]').text('International Shipping');
-                $('label[for="inputData"]').eq(0).text('Requirement');
-                $('label[for="inputData"]').eq(1).text('Specification');
-                $('label[for="inputData"]').eq(2).text('Budget');
+                $('label[for="inputRequirement"]').text('Requirement');
+                $('label[for="inputSpec"]').text('Specification');
+                $('label[for="inputBudget"]').text('Budget');
                 $('button[type="submit"]').text('Submit');
             });
 
@@ -79,21 +96,64 @@
                 $('option[value="option2"]').text('經營銷售');
                 $('option[value="option3"]').text('尋找亞洲供應商');
                 $('option[value="option4"]').text('國際運輸');
-                $('label[for="inputData"]').eq(0).text('需求');
-                $('label[for="inputData"]').eq(1).text('規格');
-                $('label[for="inputData"]').eq(2).text('預算');
+                $('label[for="inputRequirement"]').text('需求');
+                $('label[for="inputSpec"]').text('規格');
+                $('label[for="inputBudget"]').text('預算');
                 $('button[type="submit"]').text('送出');
             });
 
-            $('#DocFrom').submit(function(e){
+            $('#budgetError').hide();
+
+            $('#DocForm').submit(function(e){
                 e.preventDefault();
                 var formData = $(this).serializeArray();
                 var jsonData = {};
+                var isValid = true; // Flag to track form validation
+
+                // Custom validation logic for Budget field
+                var budgetValue = $('#inputBudget').val().trim();
+                if (!budgetValue) {
+                    isValid = false;
+                    $('#inputBudget').addClass('is-invalid');
+                    $('#budgetError').show(); // Show error message
+                } else {
+                    $('#inputBudget').removeClass('is-invalid');
+                    $('#budgetError').hide(); // Hide error message
+                }                
+
+                // Custom validation logic for other fields
                 $(formData).each(function(index, obj){
+                    if (!obj.value.trim()) { // Check if value is empty or whitespace
+                        isValid = false;
+                        // Add error styling or message to the input fields
+                        $('#' + obj.name).addClass('is-invalid');
+                    } else {
+                        $('#' + obj.name).removeClass('is-invalid');
+                    }
                     jsonData[obj.name] = obj.value;
                 });
-                var jsonString = JSON.stringify(jsonData);
-                console.log(jsonString); // You can replace this with your actual handling code
+            
+                if (isValid) {
+                    var jsonString = JSON.stringify(jsonData);
+                    // Send POST request
+                    $.ajax({
+                        type: 'POST',
+                        url: 'https://example.com/api/endpoint',
+                        contentType: 'application/json',
+                        data: jsonString,
+                        success: function(response){
+                            console.log(response);
+                            // Handle success response
+                        },
+                        error: function(err){
+                            console.log(err);
+                            // Handle error
+                        }
+                    });
+                } else {
+                    // Display custom error message or take other action
+                    console.log('Please fill out all required fields.');
+                }
             });
         });
     </script>
