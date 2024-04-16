@@ -55,6 +55,25 @@
         </form>
     </div>
 
+    <!-- Modal -->
+    <div class="modal fade" id="suggestionModal" tabindex="-1" aria-labelledby="suggestionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="suggestionModalLabel">建議</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="suggestionResult"></p>
+                    <p id="priceResult"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">確認</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 引入Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- 引入jQuery -->
@@ -101,49 +120,158 @@
 
             $('#DocForm').submit(function(e){
                 e.preventDefault();
+                var formData = $(this).serializeArray();
+                var jsonData = {};
+                var isValid = true; // Flag to track form validation
 
                 // Custom validation logic for Budget field
                 var budgetValue = $('#inputBudget').val().trim();
                 if (!budgetValue) {
+                    isValid = false;
                     $('#inputBudget').addClass('is-invalid');
                     $('#budgetError').show(); // Show error message
-                    return; // Stop form submission
                 } else {
                     $('#inputBudget').removeClass('is-invalid');
                     $('#budgetError').hide(); // Hide error message
-                }                
+                }
 
-                // Proceed with form submission
-                var formData = $(this).serializeArray();
-                var jsonData = {};
-
-                // Store selected option text instead of value
-                var selectedOptionText = $('#selectOption option:selected').text();
-                jsonData['selectOption'] = selectedOptionText;
-
-                // Store form data in jsonData object
+                // Custom validation logic for other fields
                 $(formData).each(function(index, obj){
+                    if (!obj.value.trim()) { // Check if value is empty or whitespace
+                        isValid = false;
+                        // Add error styling or message to the input fields
+                        $('#' + obj.name).addClass('is-invalid');
+                    } else {
+                        $('#' + obj.name).removeClass('is-invalid');
+                    }
                     jsonData[obj.name] = obj.value;
                 });
-                
-                // Convert jsonData to JSON string
-                var jsonString = JSON.stringify(jsonData);
-                
-                // Save JSON data to a file (example: form_data.json)
-                saveToFile(jsonString, 'form_data.json');
+
+                if (isValid) {
+                    var jsonString = JSON.stringify(jsonData);
+                    // Send POST request
+                    $.ajax({
+                        type: 'POST',
+                        url: 'https://example.com/api/endpoint',
+                        contentType: 'application/json',
+                        data: jsonString,
+                        success: function(response){
+                            console.log(response);
+                            // Handle success response
+                        },
+                        error: function(err){
+                            console.log(err);
+                            // Handle error
+                        }
+                    });
+
+                    // Calculate and show suggestion
+                    var suggestion = calculateSuggestion(jsonData);
+                    var priceResult = calculatePrice(jsonData);
+                    $('#suggestionResult').text('建議選擇：' + suggestion);
+                    $('#priceResult').text('預估價格：' + priceResult);
+                    $('#suggestionModal').modal('show');
+                } else {
+                    // Display custom error message or take other action
+                    console.log('Please fill out all required fields.');
+                }
             });
 
-            // Function to save JSON data to a file
-            function saveToFile(data, filename) {
-                var blob = new Blob([data], { type: 'application/json' });
-                var url = URL.createObjectURL(blob);
-                var a = document.createElement('a');
-                a.href = url;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+            // Sample cost calculation and suggestion logic (replace with your actual logic)
+            function calculateSuggestion(formData) {
+                var costA = calculateCostA(formData);
+                var costB = calculateCostB(formData);
+                var costC = calculateCostC(formData);
+
+                if (costA <= costB && costA <= costC) {
+                    return 'Company A';
+                } else if (costB <= costA && costB <= costC) {
+                    return 'Company B';
+                } else {
+                    return 'Company C';
+                }
+            }
+
+            // Sample cost calculation functions (replace with actual logic)
+            function calculateCostA(formData) {
+                var cost = 0;
+                switch (formData['selectOption']) {
+                    case 'Brand Agency':
+                        cost += 2000;
+                        break;
+                    case 'Business Sales':
+                        cost += 1000;
+                        break;
+                    case 'Find Asian Suppliers':
+                        cost += 500;
+                        break;
+                    case 'International Shipping':
+                        cost += 100; // Requirement
+                        cost += 200; // Specification
+                        break;
+                }
+                return cost;
+            }
+
+            function calculateCostB(formData) {
+                var cost = 0;
+                switch (formData['selectOption']) {
+                    case 'Brand Agency':
+                        cost += 1500;
+                        break;
+                    case 'Business Sales':
+                        cost += 1000;
+                        break;
+                    case 'Find Asian Suppliers':
+                        cost += 1000;
+                        break;
+                    case 'International Shipping':
+                        cost += 150; // Requirement
+                        cost += 150; // Specification
+                        break;
+                }
+                return cost;
+            }
+
+            function calculateCostC(formData) {
+                var cost = 0;
+                switch (formData['selectOption']) {
+                    case 'Brand Agency':
+                        cost += 1000;
+                        break;
+                    case 'Business Sales':
+                        cost += 1000;
+                        break;
+                    case 'Find Asian Suppliers':
+                        cost += 1000;
+                        break;
+                    case 'International Shipping':
+                        cost += 200; // Requirement
+                        cost += 300; // Specification
+                        break;
+                }
+                return cost;
+            }
+
+            // Sample price calculation logic (replace with actual logic)
+            function calculatePrice(formData) {
+                var totalCost = 0;
+                switch (formData['selectOption']) {
+                    case 'Brand Agency':
+                        totalCost += 2000;
+                        break;
+                    case 'Business Sales':
+                        totalCost += 1000;
+                        break;
+                    case 'Find Asian Suppliers':
+                        totalCost += 500;
+                        break;
+                    case 'International Shipping':
+                        totalCost += 100; // Requirement
+                        totalCost += 200; // Specification
+                        break;
+                }
+                return totalCost;
             }
         });
     </script>
